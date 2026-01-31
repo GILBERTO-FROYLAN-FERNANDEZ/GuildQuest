@@ -1,0 +1,8 @@
+- Added relations in UML diagram since it was unspecified
+- made `EffectType` an enum, was unspecified
+  - I would prefer to make it an abstract class, but I will stick to the diagram.
+- added `getMinutes` and `getHours` from WorldTime to make LocalTime instances.
+- added character methods `giveItem` and `takeItem` to make `InventoryEffect apply()` work.
+- added ThemeType abstract class since ThemeType entity was not described.
+- made TimeDisplayMode an enum entity. Could later be abstract class with concretions.
+- created an engine class to facillitate the UI.
