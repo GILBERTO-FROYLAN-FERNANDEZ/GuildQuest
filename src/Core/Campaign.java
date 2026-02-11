@@ -1,11 +1,11 @@
 package Core;
 
+import ViewsAndTimelines.Page;
 import VisibilityAndSharing.PermissionLevel;
 import VisibilityAndSharing.VisibilityType;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.security.Permission;
+import java.util.*;
 
 /**
  * The type Campaign.
@@ -17,6 +17,7 @@ public class Campaign {
     private VisibilityType visibility;
     private List<QuestEvent> questEvents;
     private Map<User, PermissionLevel> sharedWith;
+    private boolean archived;
 
     /**
      * Instantiates a new Campaign.
@@ -28,16 +29,15 @@ public class Campaign {
      * @param questEvents the quest events
      * @param sharedWith  the shared with
      */
-    public Campaign(UUID campaignId, String name, User owner, VisibilityType visibility, List<QuestEvent> questEvents, Map<User, PermissionLevel> sharedWith) {
-        this.campaignId = campaignId;
+    public Campaign(String name, User owner) {
+        campaignId = UUID.randomUUID();
         this.name = name;
         this.owner = owner;
-        this.visibility = visibility;
-        this.questEvents = questEvents;
-        this.sharedWith = sharedWith;
+        this.visibility = VisibilityType.PRIVATE;
+        this.questEvents = new ArrayList<QuestEvent>();
+        this.sharedWith = new HashMap<User, PermissionLevel>();
+        archived=false;
     }
-
-
     /**
      * Add event.
      *
@@ -45,9 +45,6 @@ public class Campaign {
      */
 // should normalize passing in either the QuestEvent or the UUID.
     public void addEvent(QuestEvent event){
-        // requires lookup for master UUID list
-        // Better to pass in Event but oh well.
-//        QuestEvent newQuest = null; // masterUUID.lookup(eventID);
         questEvents.add(event);
     }
 
@@ -56,11 +53,8 @@ public class Campaign {
      *
      * @param eventId the event id
      */
-    public void removeEvent(UUID eventId){
-        // requires lookup for master UUID list, the
-        // Better to pass in Event but oh well.
-        QuestEvent toRemove = null; // masterUUID.lookup(eventID);
-        questEvents.remove(toRemove);
+    public void removeEvent(UUID otherId){
+        questEvents.removeIf(q -> q.getEventId() == otherId);
     }
 
     /**
@@ -73,12 +67,34 @@ public class Campaign {
         questEvents.add(event);
     }
 
-    /**
-     * Sets visibility.
-     *
-     * @param visibility the visibility
-     */
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean getArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
+
+    public VisibilityType getVisibility() {
+        return visibility;
+    }
     public void setVisibility(VisibilityType visibility) {
         this.visibility = visibility;
+    }
+
+    public List<QuestEvent> getQuestEvents(){
+        return questEvents;
+    }
+
+    public User getOwner() {
+        return owner;
     }
 }
