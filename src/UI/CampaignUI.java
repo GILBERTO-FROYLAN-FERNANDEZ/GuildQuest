@@ -2,57 +2,57 @@ package UI;
 
 import Core.Campaign;
 import Core.QuestEvent;
-import Core.User;
 
 import ViewsAndTimelines.Page;
 import VisibilityAndSharing.VisibilityType;
+
+import java.util.List;
 
 /**
  * The type Campaign ui.
  */
 public class CampaignUI {
-    private static final Page page = new Page();
+    private static final Page page = Page.getPage();
 
     /**
-     * UI to create a Campaign.
+     * UI to create a named Campaign.
      *
-     * @param user the user
      * @return the campaign
      */
-    public static Campaign createCampaign(User user){
+    public static Campaign createCampaign(){
         page.nextScreen();
         String name = page.acceptStrWithValidation("Please name your campaign: ");
         // TODO: remove duplicates
-        return new Campaign(name, user);
+        return new Campaign(name);
     }
 
     /**
      * Choose a campaign
      *
-     * @param user the user
+     * @param campaigns the user
      * @return the campaign
      */
-    public static Campaign chooseCampaign(User user){
+    public static Campaign chooseCampaign(List<Campaign> campaigns){
         // assume we include archived values
-        return chooseCampaign(user, true);
+        return chooseCampaign(campaigns, true);
     }
 
     /**
      * Choose a campaign
      *
-     * @param user            the user
+     * @param campaigns            the campaigns to choose from
      * @param includeArchived whether to include archived campaigns
      * @return the campaign chosen
      */
-    public static Campaign chooseCampaign(User user, boolean includeArchived){
+    public static Campaign chooseCampaign(List<Campaign> campaigns, boolean includeArchived){
         StringBuilder prompt = new StringBuilder("Please choose a Campaign\n");
         Campaign choice = null;
         int i = 1;
-        if (user.getCampaigns().isEmpty()){
+        if (campaigns.isEmpty()){
             page.print("Sorry, there are no campaigns, please choose something else\n");
             return null;
         }
-        for (Campaign c : user.getCampaigns()){
+        for (Campaign c : campaigns){
             prompt.append(i).append(" --- ").append(c.getName()).append('\n');
             ++i;
         }
@@ -60,7 +60,7 @@ public class CampaignUI {
         int input = -1;
         while (input == -1){
             input = page.acceptIntUntil(prompt.toString(), i-1);
-            if ( !includeArchived && input != 0 && user.getCampaigns().get(input-1).getArchived() == true){
+            if ( !includeArchived && input != 0 && campaigns.get(input - 1).getArchived()){
                 page.nextScreen();
                 page.print("Please choose something not actively archived");
             } else break;
@@ -69,16 +69,16 @@ public class CampaignUI {
 
         page.nextScreen();
         if (input == 0) return null;
-        else return user.getCampaigns().get(input-1);
+        else return campaigns.get(input-1);
     }
 
     /**
      * UI to select from a bunch of options to update a campaign and its quest elements.
      *
-     * @param user the user
+     * @param campaigns the campaigns to update from
      */
-    public static void updateCampaign(User user){
-        Campaign c = chooseCampaign(user);
+    public static void updateCampaign(List<Campaign> campaigns){
+        Campaign c = chooseCampaign(campaigns);
         if (c == null){
             return;
         }
@@ -103,7 +103,7 @@ public class CampaignUI {
                 case 0 -> page.print("leaving\n");
                 case 1-> updateName(c);
                 case 2-> visibilityUI(c);
-                case 3-> shareWithOther(user);
+                case 3-> shareWithOther(c);
                 case 4-> addQuestEvent(c);
                 case 5-> updateQuestEvent(c);
                 case 6-> removeQuestEvent(c);
@@ -162,9 +162,9 @@ public class CampaignUI {
     /**
      * Shares a campaign with another user. Unimplemented
      *
-     * @param user the user
+     * @param c The campaign to associate with another user
      */
-    private static void shareWithOther(User user){page.print("unimplemented\n");}
+    private static void shareWithOther(Campaign c){page.print("unimplemented\n");}
     /**
      * Opens UI to a QuestEvent for this campaign.
      *

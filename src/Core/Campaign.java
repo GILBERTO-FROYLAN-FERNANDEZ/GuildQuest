@@ -20,14 +20,10 @@ public class Campaign {
     private boolean archived;
 
     /**
-     * Instantiates a new Campaign.
+     * Instantiates a new Campaign with default parameters.
      *
-     * @param campaignId  the campaign id
      * @param name        the name
      * @param owner       the owner
-     * @param visibility  the visibility
-     * @param questEvents the quest events
-     * @param sharedWith  the shared with
      */
     public Campaign(String name, User owner) {
         campaignId = UUID.randomUUID();
@@ -38,6 +34,22 @@ public class Campaign {
         this.sharedWith = new HashMap<User, PermissionLevel>();
         archived=false;
     }
+
+    /**
+     * Instantiates a new Campaign. PLEASE ASSIGN A USER AFTER USING THIS
+     *
+     * @param name the name
+     */
+    public Campaign(String name) {
+        campaignId = UUID.randomUUID();
+        this.name = name;
+        this.owner = null; // MAKE SURE TO SET AFTERWARDS
+        this.visibility = VisibilityType.PRIVATE;
+        this.questEvents = new ArrayList<QuestEvent>();
+        this.sharedWith = new HashMap<User, PermissionLevel>();
+        archived=false;
+    }
+
     /**
      * Add event.
      *
@@ -51,7 +63,7 @@ public class Campaign {
     /**
      * Remove event.
      *
-     * @param eventId the event id
+     * @param otherId the event id
      */
     public void removeEvent(UUID otherId){
         questEvents.removeIf(q -> q.getEventId() == otherId);
@@ -96,5 +108,9 @@ public class Campaign {
 
     public User getOwner() {
         return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 }
