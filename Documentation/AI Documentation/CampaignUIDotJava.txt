@@ -1,9 +1,10 @@
 package UI;
 
 import Core.Campaign;
-import Core.CampaignState;
+import Core.QuestEvent;
 
 import ViewsAndTimelines.Page;
+import VisibilityAndSharing.VisibilityType;
 
 import java.util.List;
 
@@ -86,11 +87,11 @@ public class CampaignUI {
                 1 --- Update Name
                 2 --- Set visibility
                 3 --- Share With Another User (unimplemented)
-                
+
                 4 --- Add QuestEvent
                 5 --- Update QuestEvent
                 6 --- Remove QuestEvent
-                
+
                 7 ---- Archive
                 0 --- exit
                 """;
@@ -117,8 +118,9 @@ public class CampaignUI {
      * @param c the campaign
      */
     private static void updateName(Campaign c){
-        CampaignState cState = c.getState();
-        cState.updateName();
+        String newName = page.acceptStrWithValidation("Please choose a new name: ");
+        if (newName != null)  c.setName(newName);
+        page.print("new name set\n");
     }
     /**
      * Change visibility of a campaign between public and private
@@ -126,8 +128,22 @@ public class CampaignUI {
      * @param c The Campaign
      */
     private static void visibilityUI(Campaign c){
-        CampaignState cState = c.getState();
-        cState.changeVisibility();
+        VisibilityType opposite = (c.getVisibility() == VisibilityType.PRIVATE) ?
+                VisibilityType.PUBLIC :VisibilityType.PRIVATE;
+        String prompt = """
+                Campaign is currently %s
+                Would you like to change it to %s ?
+
+                1 --- yes
+                2 --- no
+                0 --- exit
+                """.formatted(c.getVisibility(), opposite);
+        int choice = page.acceptIntUntil(prompt, 2);
+        switch (choice) {
+            case 2:
+            case 0: return;
+            case 1: c.setVisibility(opposite); break;
+        }
     }
     /**
      * Archives a campaign.
@@ -135,8 +151,13 @@ public class CampaignUI {
      * @param c The Campaign
      */
     private static void archiveCampaign(Campaign c){
-        CampaignState cState = c.getState();
-        cState.archive();
+
+        if (c.getArchived() == true){
+            page.print("Sorry, this is already archived\n");
+        } else{
+            c.setArchived(true);
+            page.print("Archived\n");
+        }
     }
     /**
      * Shares a campaign with another user. Unimplemented
@@ -150,8 +171,8 @@ public class CampaignUI {
      * @param c The Campaign
      */
     private static void addQuestEvent(Campaign c){
-        CampaignState cState = c.getState();
-        cState.addQuestEvent();
+        QuestEvent qe = QuestEventUI.createQuestEvent(c);
+        if (qe != null) c.addEvent(qe);
     }
     /**
      * Updates a QuestEvent within a given campaign.
@@ -159,8 +180,8 @@ public class CampaignUI {
      * @param c The Campaign
      */
     private static void updateQuestEvent(Campaign c){
-        CampaignState cState = c.getState();
-        cState.updateQuestEvent();
+        page.nextScreen();
+        QuestEventUI.updateQuestEvent(c);
     }
     /**
      * removes a questEvent from given campaign.
@@ -168,8 +189,8 @@ public class CampaignUI {
      * @param c The Campaign
      */
     private static void removeQuestEvent(Campaign c){
-        CampaignState cState = c.getState();
-        cState.removeQuestEvent();
+        page.nextScreen();
+        QuestEventUI.removeQuestEvent(c);
     }
     /**
      * View the name, owner, visibility, and questevents of a given campaign
@@ -177,7 +198,17 @@ public class CampaignUI {
      * @param c The Campaign
      */
     public static void viewCampaign(Campaign c){
-        CampaignState cState = c.getState();
-        cState.viewCampaign();
+        String display = """
+                Name: %s
+                Owner: %s
+                Visibility: %s
+                QuestEvents:
+                %s
+                """.formatted(c.getName(),
+                        c.getOwner().getUsername(),
+                        c.getVisibility().toString(),
+                        QuestEventUI.timelineString(c)
+                );
+        page.print(display);
     }
 }

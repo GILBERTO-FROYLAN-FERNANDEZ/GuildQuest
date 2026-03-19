@@ -3,14 +3,18 @@ package RealmAndTime;
 /**
  * The type World time.
  */
-public class WorldTime {
+public class WorldTime implements Comparable<WorldTime>{
     private long totalMinutes;
 
     /**
      * Instantiates a new World time.
      */
-    public WorldTime(){
-        totalMinutes = 0;
+    public WorldTime(int mins, int hours, int days){
+        if (mins < 0 || hours < 0 || days < 0 ||
+                mins > 59 || hours > 23){
+            throw new NumberFormatException("numbers must be within the correct bounds");
+        }
+        totalMinutes = mins+hours*60 + days*1440L;
     }
 
     /**
@@ -61,4 +65,13 @@ public class WorldTime {
         return (totalMinutes / 60) % 24;
     }
 
+    @Override
+    public int compareTo(WorldTime w) {
+        return Long.compare(totalMinutes, w.totalMinutes);
+    }
+
+    @Override
+    public String toString(){
+        return "Day: %2d Time: %2d:%2d".formatted(toDays(), getHours(), getMinutes());
+    }
 }

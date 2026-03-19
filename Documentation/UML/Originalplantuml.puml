@@ -1,0 +1,166 @@
+@startuml
+
+left to right direction
+
+class UserSettings{
+    - currentRealm: Realm
+    - theme: ThemeType
+    - timeDisplayMode: TimeDisplayMode
+    + updateTheme(theme)
+    + updateTimeDisplay(mode)
+    + updateCurrentRealm(realm)
+}
+
+class Campaign{
+    - campaignId: UUID
+    - name: String
+    - owner: User
+    - visibility: VisibilityType
+    - questEvents: List<QuestEvent>
+    - sharedWith: Map<User, PermissionLevel>
+    + addEvent(event)
+    + removeEvent(eventId)
+    + updateEvent(event)
+    + setVisibility(visibility)
+}
+
+class QuestEvent{
+    - eventId: UUID
+    - title: String
+    - startTime: WorldTime
+    - endTime: WorldTime (optional)
+    - realm: Realm
+    - participants: List<Character>
+    - inventoryEffects: List<InventoryEffect>
+    - sharedWith: List<User>
+    + updateTimes(start, end)
+    + updateRealm(realm)
+    + addParticipant(character)
+}
+
+class WorldTime{
+    - totalMinutes: long
+    + addMinutes(minutes)
+    + toDays()
+    + toHours()
+}
+
+class Realm{
+    - realmId: UUID
+    - name: String
+    - description: String
+    - timeOffsetMinutes: int
+    + convertFromWorldTime(worldTime): LocalTime
+}
+
+class Character{
+    - characterId: UUID
+    - name: String
+    - characterClass: String
+    - level: int
+    - inventory: Inventory
+    + levelUp()
+}
+
+class LocalTime{
+    - day: int
+    - hour: int
+    - minute: int
+}
+
+class Inventory{
+    - items: List<Item>
+    + addItem(item)
+    + removeItem(itemId)
+}
+
+enum VisibilityType {
+PUBLIC,
+PRIVATE
+}
+enum PermissionLevel {
+VIEW_ONLY,
+COLLABORATIVE
+}
+
+class Item{
+    - itemId: UUID
+    - name: String
+    - description: String
+    - rarity: String
+}
+class InventoryEffect{
+    - item: Item
+    - quantity: int
+    - effectType: EffectType
+    + apply(character)
+}
+
+enum EffectType {
+    GRANT
+    REMOVE
+}
+
+abstract class TimelineView{
+    - campaign: Campaign
+    + display()
+}
+
+class DayView
+class WeekView
+class MonthView
+class YearView
+
+User *-- UserSettings
+User o-- Campaign
+User *-- Character
+
+UserSettings o-- Realm
+UserSettings *-- ThemeType
+UserSettings *-- TimeDisplayMode
+
+Campaign o-- User
+Campaign *-- VisibilityType
+Campaign *-- QuestEvent
+Campaign *-- PermissionLevel
+
+QuestEvent o-- WorldTime
+QuestEvent *-- Realm
+QuestEvent o-- Character
+QuestEvent *-- InventoryEffect
+QuestEvent o-- User
+
+Realm <.. LocalTime
+
+Character *-- Inventory
+Inventory *-- Item
+InventoryEffect *-- EffectType
+
+TimelineView o-- Campaign
+
+CampaignUI *-- Page
+CharacterUI *-- Page
+InventoryUI *-- Page
+QuestEventUI *-- Page
+RealmUI *-- Page
+UserUI *-- Page
+WorldTimeUI *-- Page
+
+UserUI --> User
+CampaignUI --> User
+CampaignUI --> Campaign
+QuestEventUI --> Campaign
+QuestEventUI --> QuestEvent
+CharacterUI --> User
+CharacterUI --> QuestEvent
+InventoryUI --> Character
+InventoryUI --> Item
+WorldTimeUI --> WorldTime
+RealmUI --> Realm
+
+TimelineView <|-- DayView
+TimelineView <|-- WeekView
+TimelineView <|-- MonthView
+TimelineView <|-- YearView
+
+@enduml

@@ -1,5 +1,8 @@
 package RPGDomain;
 
+import Core.Campaign;
+import ViewsAndTimelines.Page;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -20,7 +23,7 @@ public class Character {
      * @param name           the name
      * @param characterClass the character class
      */
-    Character(String name, String characterClass){
+    public Character(String name, String characterClass){
         this.name = name;
         this.characterClass = characterClass;
         this.inventory = new Inventory();
@@ -35,10 +38,21 @@ public class Character {
         level += 1;
     }
 
+    public String getName() {return name;}
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Inventory getInventory() {
+        return inventory;
+    }
+
     public void giveItem(Item item){
         inventory.addItem(item);
     }
     public void takeItem(Item item){
         inventory.removeItem(item);
     }
+
 }

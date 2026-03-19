@@ -10,15 +10,24 @@ import java.util.*;
 import java.util.function.IntBinaryOperator;
 import java.util.function.UnaryOperator;
 
+IMPATIENT=true; // if true, skips validation for string inputs.
+
 public class Page {
     private static Scanner scanner = new Scanner(System.in);
     private StringBuilder str;
+    private static Page page;
 
-    public Page(){
+    private Page(){
         str = new StringBuilder();
     }
 
-    public void addToBuffer(String newStr){
+    public static Page getPage(){
+        if (page==null){
+            page = new Page();
+        }
+        return page;
+    }
+    public void addToPage(String newStr){
         str.append(newStr);
     }
 
@@ -32,31 +41,34 @@ public class Page {
     }
 
     public String acceptStrWithValidation(String prompt){
+        
+       if (IMPATIENT){
         return acceptStr(prompt);
-//        String str = null;
-//        while (str == null){
-//            System.out.print(prompt);
-//            str = scanner.nextLine();
-//            System.out.println("Are you sure you wanted to write: " + str);
-//            System.out.println("1 -- yes: ");
-//            System.out.println("2 -- no: ");
-//            int choice;
-//            try{
-//                choice = Integer.parseInt(scanner.nextLine());
-//            } catch (NumberFormatException e) {
-//                System.out.println("Invalid input, please try again: ");
-//                str = null;
-//                continue;
-//            }
-//            switch (choice){
-//                case 1: break;
-//                case 2:
-//                    nextScreen();
-//                    System.out.println("try again");
-//                    str = null;
-//            }
-//        }
-//        return str;
+       }
+       String str = null;
+       while (str == null){
+           System.out.print(prompt);
+           str = scanner.nextLine();
+           System.out.println("Are you sure you wanted to write: " + str);
+           System.out.println("1 -- yes: ");
+           System.out.println("2 -- no: ");
+           int choice;
+           try{
+               choice = Integer.parseInt(scanner.nextLine());
+           } catch (NumberFormatException e) {
+               System.out.println("Invalid input, please try again: ");
+               str = null;
+               continue;
+           }
+           switch (choice){
+               case 1: break;
+               case 2:
+                   nextScreen();
+                   System.out.println("try again");
+                   str = null;
+           }
+       }
+       return str;
     }
 
     public void nextScreen(){

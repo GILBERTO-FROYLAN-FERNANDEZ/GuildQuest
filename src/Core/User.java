@@ -14,8 +14,6 @@ public class User {
     private List<Campaign> campaigns;
     private List<RPGDomain.Character> characters;
     private UserSettings settings;
-
-    private static Page page = new Page();
     // add GUI stuff
 
     public static User createUser(String username){

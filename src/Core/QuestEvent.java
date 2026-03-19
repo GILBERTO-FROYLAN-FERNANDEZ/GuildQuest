@@ -32,8 +32,8 @@ public class QuestEvent {
      * @param inventoryEffects the inventory effects
      * @param sharedWith       the shared with
      */
-    public QuestEvent(UUID eventId, String title, WorldTime startTime, Realm realm, List<Character> participants, List<InventoryEffect> inventoryEffects, List<User> sharedWith) {
-        this.eventId = eventId;
+    public QuestEvent(String title, WorldTime startTime, Realm realm, List<Character> participants, List<InventoryEffect> inventoryEffects, List<User> sharedWith) {
+        eventId = UUID.randomUUID();
         this.title = title;
         this.startTime = startTime;
         this.realm = realm;
@@ -48,8 +48,12 @@ public class QuestEvent {
      * @param WorldTime start the start
      * @param WorldTime end   the end
      */
-    public void updateTimes(WorldTime start, WorldTime end){
-        // Unsure of what this does
+    public void updateTimes(WorldTime start, WorldTime end) throws IllegalArgumentException{
+        if (end != null && ( start.compareTo(end) > 0)){
+            throw new IllegalArgumentException("Start time is greater than end");
+        }
+        startTime = start;
+        endTime = end;
     }
 
     /**
@@ -67,6 +71,47 @@ public class QuestEvent {
      * @param character the character
      */
     public void addParticipant(Character character){
+        if (participants.contains(character)) return;
         participants.add(character);
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title){
+        this.title = title;
+    }
+
+    public UUID getEventId() {
+        return eventId;
+    }
+
+    public List<Character> getParticipants() {
+        return participants;
+    }
+
+    public WorldTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(WorldTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public WorldTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(WorldTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public Realm getRealm() {
+        return realm;
+    }
+
+    public void setRealm(Realm realm) {
+        this.realm = realm;
     }
 }

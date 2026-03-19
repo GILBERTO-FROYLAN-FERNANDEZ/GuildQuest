@@ -2,6 +2,8 @@ package UI;
 
 import Core.Campaign;
 import Core.QuestEvent;
+import InventoryCommands.AddItemsCommand;
+import InventoryCommands.RemoveItemCommand;
 import RPGDomain.Character;
 import RealmAndTime.Realm;
 import RealmAndTime.WorldTime;
@@ -11,7 +13,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 public class QuestEventUI {
-    private static final Page page = new Page();
+    private static final Page page = Page.getPage();
+    private static final AddItemsCommand addItemsCommand = new AddItemsCommand();
+    private static final RemoveItemCommand removeItemCommand = new RemoveItemCommand();
     public static QuestEvent chooseQuestEvent(Campaign campaign){
         // assume we include archived values
         return chooseQuestEvent(campaign, true);
@@ -131,7 +135,7 @@ public class QuestEventUI {
         if (choice ==0) return;
         Character character = null;
         if (choice == 1) {
-            character = CharacterUI.chooseCharacter(c.getOwner());
+            character = CharacterUI.chooseCharacter(c.getOwner().getCharacters());
         } else if (choice == 2){
             character = CharacterUI.createCharacter(c.getOwner());
         }
@@ -139,25 +143,25 @@ public class QuestEventUI {
         page.print("added " + character.getName() + "!\n");
     }
     private static void removeCharacters(QuestEvent qe, Campaign c){
-        qe.getParticipants().remove(CharacterUI.chooseCharacter(c.getOwner()));
+        qe.getParticipants().remove(CharacterUI.chooseCharacter(c.getOwner().getCharacters()));
     }
     private static void rewardCharacter(QuestEvent qe, Campaign c){
         if (qe.getParticipants().isEmpty()){
             page.print("No characters to reward.\n");
             return;
         }
-        Character character = CharacterUI.chooseCharacter(qe); // only questEvent characters
+        Character character = CharacterUI.chooseCharacter(qe.getParticipants()); // only questEvent characters
         if (character == null) return;
-        InventoryUI.addItem(character);
+        addItemsCommand.execute(character);
     }
     private static void punishCharacter(QuestEvent qe){
         if (qe.getParticipants().isEmpty()){
             page.print("No characters to punish.\n");
             return;
         }
-        Character character = CharacterUI.chooseCharacter(qe); // only questEvent characters
+        Character character = CharacterUI.chooseCharacter(qe.getParticipants()); // only questEvent characters
         if (character == null) return;
-        InventoryUI.removeItem(character);
+        removeItemCommand.execute(character);
     }
     public static String timelineString(Campaign c){
         c.getQuestEvents().sort(Comparator.comparing(QuestEvent::getStartTime));

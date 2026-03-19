@@ -46,4 +46,9 @@ public class Realm {
         }
         return new LocalTime((int) mins, (int) hours, (int) days);
     }
+
+    @Override
+    public String toString() {
+        return "Name: " + name + "; Description: " + description + "; Offset: " + timeOffsetMinutes;
+    }
 }

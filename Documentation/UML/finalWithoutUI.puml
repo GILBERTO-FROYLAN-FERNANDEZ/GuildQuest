@@ -1,0 +1,214 @@
+@startuml
+skinparam groupInheritance 2
+
+enum VisibilityAndSharing.VisibilityType {
++  PUBLIC
++  PRIVATE
+}
+
+enum VisibilityAndSharing.PermissionLevel {
++  VIEW_ONLY
++  COLLABORATIVE
+}
+
+abstract class VisibilityAndSharing.ThemeType {
+}
+
+class RPGDomain.Inventory {
+- List<Item> items
+~ void addItem(Item)
+~ void removeItem(Item)
+}
+
+
+class RealmAndTime.WorldTime {
+- long totalMinutes
++ void addMinutes(long)
++ long toDays()
++ long toHours()
++ int compareTo(WorldTime)
++ String toString()
+}
+
+
+class RPGDomain.Item {
+- UUID itemId
+- String name
+- String desc
+- String rarity
+}
+
+
+class Core.UserSettings {
+- Realm currentRealm
+- ThemeType theme
+- TimeDisplayMode timeDisplayMode
++ void updateTheme(ThemeType)
++ void updateTimeDisplay(TimeDisplayMode)
++ void updateCurrentRealm(Realm)
+}
+
+class Core.QuestEvent {
+- UUID eventId
+- String title
+- WorldTime startTime
+- WorldTime endTime
+- Realm realm
+- List<Character> participants
+- List<InventoryEffect> inventoryEffects
+- List<User> sharedWith
++ void updateTimes(WorldTime,WorldTime)
++ void updateRealm(Realm)
++ void addParticipant(Character)
+}
+
+
+enum RPGDomain.EffectType {
++  GRANT
++  REMOVE
+}
+
+
+class RPGDomain.InventoryEffect {
+- Item item
+- int quantity
+- EffectType effectType
++ void apply(Character)
+}
+
+
+class ViewsAndTimelines.DayView {
++ void display()
+}
+
+class Core.Campaign {
+- UUID campaignId
+- String name
+- User owner
+- VisibilityType visibility
+- List<QuestEvent> questEvents
+- Map<User,PermissionLevel> sharedWith
+- boolean archived
++ void addEvent(QuestEvent)
++ void removeEvent(UUID)
++ void updateEvent(QuestEvent)
+}
+
+class Engine {
+- {static} Scanner scanner
++ {static} void main(String[])
+}
+
+
+class ViewsAndTimelines.WeekView {
++ void display()
+}
+
+class RPGDomain.Character {
+- UUID characterId
+- String name
+- String characterClass
+- int level
+- Inventory inventory
++ void levelUp()
++ void giveItem(Item)
++ void takeItem(Item)
+}
+
+
+enum ViewsAndTimelines.TimeDisplayMode {
++  World
++  RealmLocal
++  Both
+}
+
+class ViewsAndTimelines.Page {
+- {static} Scanner scanner
+- StringBuilder str
++ void addToPage(String)
++ void print(T)
++ String acceptStr(String)
++ String acceptStrWithValidation(String)
++ void nextScreen()
++ int acceptIntUntil(String,int)
++ {static} String dynamicPrompt(String,String)
+}
+
+
+class RealmAndTime.Realm {
+- UUID realmId
+- String name
+- String description
+- int timeOffsetMinutes
++ LocalTime convertFromWorldTime(WorldTime)
++ String toString()
+}
+
+
+abstract class ViewsAndTimelines.TimelineView {
+- Campaign campaign
++ {abstract}void display()
+}
+
+class ViewsAndTimelines.YearView {
++ void display()
+}
+
+class ViewsAndTimelines.MonthView {
++ void display()
+}
+
+class Core.User {
+- {static} Map<String,User> allUsers
+- UUID userId
+- String username
+- List<Campaign> campaigns
+- List<RPGDomain.Character> characters
+- UserSettings settings
+- {static} Page page
++ {static} User createUser(String)
++ void addCharacter(Character)
++ void addCampaign(Campaign)
++ void removeCampaign(Campaign)
+}
+
+
+class RealmAndTime.LocalTime {
++ int day
++ int hour
++ int minute
+}
+
+User *-- UserSettings
+User o-- Campaign
+User *-- Character
+
+UserSettings o-- Realm
+UserSettings *-- ThemeType
+UserSettings *-- TimeDisplayMode
+
+Campaign o-- User
+Campaign *-- VisibilityType
+Campaign *-- QuestEvent
+Campaign *-- PermissionLevel
+
+QuestEvent o-left- WorldTime
+QuestEvent *-- Realm
+QuestEvent o-- Character
+QuestEvent *-- InventoryEffect
+QuestEvent o-- User
+
+Realm <.. LocalTime
+
+Character *-- Inventory
+Inventory *-- Item
+InventoryEffect *-- EffectType
+
+TimelineView o-- Campaign
+
+RealmAndTime.Comparable <|.. RealmAndTime.WorldTime
+ViewsAndTimelines.TimelineView <|-- ViewsAndTimelines.DayView
+ViewsAndTimelines.TimelineView <|-- ViewsAndTimelines.WeekView
+ViewsAndTimelines.TimelineView <|-- ViewsAndTimelines.YearView
+ViewsAndTimelines.TimelineView <|-- ViewsAndTimelines.MonthView
+@enduml

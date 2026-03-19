@@ -1,13 +1,15 @@
 package UI;
 
 import Core.Campaign;
-import Core.QuestEvent;
 import Core.User;
 import RPGDomain.Character;
 import ViewsAndTimelines.Page;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 public class CharacterUI {
-    private static final Page page = new Page();
+    private static final Page page = Page.getPage();
 
     public static void displayOptions(User user){
         String prompt = """
@@ -42,7 +44,7 @@ public class CharacterUI {
         return character;
     }
     private static void editCharacter(User user){
-        Character character = chooseCharacter(user);
+        Character character = chooseCharacter(user.getCharacters());
         if (character == null) {
             return;
         }
@@ -66,25 +68,23 @@ public class CharacterUI {
         page.print("renamed\n");
     }
     public static void removeCharacter(User user){
-        Character character = chooseCharacter(user);
+        Character character = chooseCharacter(user.getCharacters());
         if (character == null) return;
         user.getCharacters().remove(character);
         for (Campaign c : user.getCampaigns()){
-            for (QuestEvent qe : c.getQuestEvents()){
-                qe.getParticipants().remove(character);
-            }
+            c.getQuestEvents().forEach(qe -> qe.getParticipants().remove(character));
         }
         page.print("removed character\n");
     }
 
-    public static Character chooseCharacter(User user){
+    public static Character chooseCharacter(List<Character> characters){
         StringBuilder prompt = new StringBuilder("Please choose a Character\n");
         Campaign choice = null;
         int i = 1;
-        if (user.getCharacters().isEmpty()){
+        if (characters.isEmpty()){
             page.print("Sorry, there are no Characters, please choose something else\n");
         }
-        for (Character ch : user.getCharacters()){
+        for (Character ch : characters){
             prompt.append(i).append(" --- ").append(ch.getName()).append('\n');
             ++i;
         }
@@ -94,25 +94,6 @@ public class CharacterUI {
 
         page.nextScreen();
         if (input == 0) return null;
-        else return user.getCharacters().get(input-1);
-    }
-    public static Character chooseCharacter(QuestEvent qe){
-        StringBuilder prompt = new StringBuilder("Please choose a Character\n");
-        Campaign choice = null;
-        int i = 1;
-        if (qe.getParticipants().isEmpty()){
-            page.print("Sorry, there are no characters in this quest, please choose something else\n");
-        }
-        for (Character ch : qe.getParticipants()){
-            prompt.append(i).append(" --- ").append(ch.getName()).append('\n');
-            ++i;
-        }
-        prompt.append("0 -- exit\n");
-        int input = -1;
-        input = page.acceptIntUntil(prompt.toString(), i-1);
-
-        page.nextScreen();
-        if (input == 0) return null;
-        else return qe.getParticipants().get(input-1);
+        else return characters.get(input-1);
     }
 }

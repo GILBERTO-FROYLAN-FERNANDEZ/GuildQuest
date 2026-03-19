@@ -19,6 +19,8 @@ public class Campaign {
     private Map<User, PermissionLevel> sharedWith;
     private boolean archived;
 
+    private CampaignState state;
+
     /**
      * Instantiates a new Campaign with default parameters.
      *
@@ -33,6 +35,7 @@ public class Campaign {
         this.questEvents = new ArrayList<QuestEvent>();
         this.sharedWith = new HashMap<User, PermissionLevel>();
         archived=false;
+        state = new ActiveCampaign(this);
     }
 
     /**
@@ -48,6 +51,7 @@ public class Campaign {
         this.questEvents = new ArrayList<QuestEvent>();
         this.sharedWith = new HashMap<User, PermissionLevel>();
         archived=false;
+        state = new ActiveCampaign(this);
     }
 
     /**
@@ -82,34 +86,32 @@ public class Campaign {
     public String getName() {
         return name;
     }
+    public boolean getArchived() {
+        return archived;
+    }
+    public VisibilityType getVisibility() {
+        return visibility;
+    }
+    public List<QuestEvent> getQuestEvents(){
+        return questEvents;
+    }
+    public User getOwner() {
+        return owner;
+    }
+    public CampaignState getState(){return state;};
 
     public void setName(String name) {
         this.name = name;
     }
-
-    public boolean getArchived() {
-        return archived;
-    }
-
     public void setArchived(boolean archived) {
         this.archived = archived;
-    }
-
-    public VisibilityType getVisibility() {
-        return visibility;
+        if (archived){
+            state = new ArchivedCampaign(this);
+        } else state = new ActiveCampaign(this);
     }
     public void setVisibility(VisibilityType visibility) {
         this.visibility = visibility;
     }
-
-    public List<QuestEvent> getQuestEvents(){
-        return questEvents;
-    }
-
-    public User getOwner() {
-        return owner;
-    }
-
     public void setOwner(User owner) {
         this.owner = owner;
     }
